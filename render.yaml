@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: jsrush
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --config gunicorn.conf.py wsgi:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: jsrush-db
+      - key: REDIS_URL
+        fromDatabase: jsrush-redis
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: MAIL_PASSWORD
+        value: poshhstyasngjjyr
+      - key: WHISH_CHANNEL
+        value: your_production_channel_id
+      - key: WHISH_SECRET
+        value: your_production_whish_secret
+      - key: WHISH_WEBSITE_URL
+        value: https://yourdomain.com
+      - key: WHISH_BASE_URL
+        value: https://whish.money/itel-service/api
+      - key: WHISH_WEBHOOK_SECRET
+        value: your_webhook_secret
+      - key: WHISH_SANDBOX
+        value: "false"
+      - key: SERVER_NAME
+        value: yourdomain.com
+      - key: WHATSAPP_NUMBER
+        value: "96171903956"
+      - key: FLASK_ENV
+        value: production
+    envFromSecret:
+      - key: SECRET_KEY
+      - key: JWT_SECRET_KEY
+      - key: MAIL_PASSWORD
+      - key: WHISH_SECRET
+      - key: WHISH_WEBHOOK_SECRET
+      - key: JWT_SECRET_KEY
+
+databases:
+  - name: jsrush-db
+    plan: free
+  - name: jsrush-redis
+    plan: free

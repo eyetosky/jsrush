@@ -1,0 +1,76 @@
+# .dockerignore - Only ignore what we DON'T need in production
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Local environment files
+.env
+.env.local
+.env.production
+.env.example
+.venv
+venv/
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+*.pid
+*.lock
+
+# Database
+*.db
+*.sqlite3
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+
+# Build/Deploy artifacts
+*.log
+*.pid
+*.lock
+build/
+dist/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build tools
+Makefile
+*.mk
+
+# DO NOT IGNORE games/ directory - it's needed for the app
+# Don't ignore .md files (documentation is fine)
+# Don't ignore games/ directory

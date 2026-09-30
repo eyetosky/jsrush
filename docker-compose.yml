@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - jsrush-network
+
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/jsrush
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - WHISH_CHANNEL=${WHISH_CHANNEL}
+      - WHISH_SECRET=${WHISH_SECRET}
+      - WHISH_WEBHOOK_SECRET=${WHISH_WEBHOOK_SECRET}
+      - WHISH_WEBSITE_URL=https://yourdomain.com
+      - WHISH_BASE_URL=https://whish.money/itel-service/api
+      - WHISH_WEBHOOK_SECRET=${WHISH_WEBHOOK_SECRET}
+      - WHISH_SANDBOX=false
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=true
+      - MAIL_USERNAME=jsrush.noreply@gmail.com
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_DEFAULT_SENDER=JS Rush <noreply@yourdomain.com>
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - WHISH_CHANNEL=${WHISH_CHANNEL}
+      - WHISH_SECRET=${WHISH_SECRET}
+      - WHISH_WEBHOOK_SECRET=${WHISH_WEBHOOK_SECRET}
+      - WHISH_WEBSITE_URL=https://yourdomain.com
+      - WHISH_BASE_URL=https://whish.money/itel-service/api
+      - WHISH_WEBHOOK_SECRET=${WHISH_WEBHOOK_SECRET}
+      - WHISH_SANDBOX=false
+      - SERVER_NAME=yourdomain.com
+      - WHATSAPP_NUMBER=96171903956
+    environment:
+      - FLASK_ENV=production
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - jsrush-network
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: jsrush
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jsrush-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
+    networks:
+      - jsrush-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - jsrush-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  jsrush-network:
+    driver: bridge

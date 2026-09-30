@@ -1,0 +1,41 @@
+# JS Rush Systemd Service
+# Install: sudo cp jsrush.service /etc/systemd/system/
+# Enable: sudo systemctl enable jsrush
+# Start: sudo systemctl start jsrush
+
+[Unit]
+Description=JS Rush Gambling Platform
+After=network.target postgresql.service redis.service
+Requires=postgresql.service redis.service
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/jsrush
+Environment=PATH=/var/www/jsrush/venv/bin
+EnvironmentFile=/var/www/jsrush/.env.production
+ExecStart=/var/www/jsrush/venv/bin/gunicorn --config gunicorn.conf.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=10
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/jsrush/logs /var/www/jsrush/static/uploads
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
